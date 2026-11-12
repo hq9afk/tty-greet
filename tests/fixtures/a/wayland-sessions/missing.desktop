@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=Missing
+Exec=/nonexistent/compositor
+TryExec=/nonexistent/compositor

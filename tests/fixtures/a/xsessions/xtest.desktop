@@ -1,0 +1,9 @@
+# comment
+[Desktop Entry]
+Name=X Test
+Exec=sh -c true
+TryExec=sh
+
+[Desktop Action other]
+Name=Wrong
+Exec=wrong

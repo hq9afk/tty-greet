@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Alpha
+Name[de]=Alpha DE
+Exec=sh -c "exec alpha" %U
+TryExec=sh
+DesktopNames=Alpha;Wlroots;
+Type=Application

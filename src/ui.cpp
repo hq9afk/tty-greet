@@ -1,14 +1,13 @@
-#include "ui.h"
-
-#include <curses.h>
-#include <time.h>
-
 #include <algorithm>
 #include <clocale>
+#include <curses.h>
 #include <cwchar>
+#include <fstream>
 #include <string>
+#include <time.h>
 
 #include "clock.h"
+#include "ui.h"
 
 namespace {
 
@@ -21,7 +20,6 @@ constexpr struct {
     int r, g, b;
 } kAccent{0x9B, 0x57, 0xF4}; // `astralia-clock` accent
 constexpr int kTagWidth = 9; // `[wayland]`
-const std::wstring kTitle = L" tty-greet ";
 const std::wstring kHint = L"j/k move  enter start  q shell";
 const std::wstring kTtyName = L"Continue in tty";
 
@@ -34,6 +32,23 @@ std::wstring widen(const std::string &s) {
         return std::wstring(s.begin(), s.end());
     out.resize(n);
     return out;
+}
+
+// Distro name from os-release (`NAME`, or `PRETTY_NAME` for the version too), else `tty-greet`.
+std::wstring distro_title() {
+    for (const char *path : {"/etc/os-release", "/usr/lib/os-release"}) {
+        std::ifstream f(path);
+        for (std::string line; std::getline(f, line);) {
+            if (line.rfind("NAME=", 0) != 0)
+                continue;
+            std::string v = line.substr(5);
+            if (v.size() >= 2 && (v.front() == '"' || v.front() == '\'') && v.back() == v.front())
+                v = v.substr(1, v.size() - 2);
+            if (!v.empty())
+                return L" " + widen(v) + L" ";
+        }
+    }
+    return L" tty-greet ";
 }
 
 int cell_width(wchar_t c) {
@@ -115,6 +130,7 @@ long mono_ms() {
 // `left > 0`: the countdown hint replaces the key hint.
 void draw(const std::vector<Session> &sessions, const std::vector<std::wstring> &names, std::size_t sel, std::size_t &top,
           std::time_t now, int left) {
+    static const std::wstring title = distro_title();
     erase();
     int rows = 0, cols = 0;
     getmaxyx(stdscr, rows, cols);
@@ -127,7 +143,7 @@ void draw(const std::vector<Session> &sessions, const std::vector<std::wstring> 
     int name_w = 0;
     for (const std::wstring &n : names)
         name_w = std::max(name_w, width(n));
-    const int want = std::max({1 + name_w + 2 + kTagWidth + 1, width(kHint) + 2, width(kTitle) + 4, kMinInner});
+    const int want = std::max({1 + name_w + 2 + kTagWidth + 1, width(kHint) + 2, width(title) + 4, kMinInner});
     const int inner = std::min(want, cols - 2);
     const std::size_t n = names.size(); // sessions plus the tty entry
     const int date_h = kDateGap + 1;    // gap, date line
@@ -147,7 +163,7 @@ void draw(const std::vector<Session> &sessions, const std::vector<std::wstring> 
 
     frame(y0, x0, box_h, box_w);
     attron(A_BOLD);
-    put(y0, x0 + 2, kTitle, inner - 2);
+    put(y0, x0 + 2, title, inner - 2);
     attroff(A_BOLD);
 
     top = scroll_top(sel, top, static_cast<std::size_t>(list_h));

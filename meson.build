@@ -1,5 +1,5 @@
 project(
-  'tui-greet',
+  'tty-greet',
   'cpp',
   version: '0.1.0',
   default_options: [
@@ -22,17 +22,16 @@ inc = include_directories('src')
 ncurses_dep = dependency('ncursesw')
 
 core = static_library(
-  'tuigreet',
+  'ttygreet',
   'src/session.cpp',
   'src/launch.cpp',
-  'src/state.cpp',
   'src/ui.cpp',
   include_directories: inc,
   dependencies: ncurses_dep,
 )
 
 executable(
-  'tui-greet',
+  'tty-greet',
   'src/main.cpp',
   include_directories: inc,
   link_with: core,
@@ -40,7 +39,7 @@ executable(
   install: true,
 )
 
-install_data('contrib/profile.sh', install_dir: get_option('datadir') / 'tui-greet')
+install_data('contrib/profile.sh', install_dir: get_option('datadir') / 'tty-greet')
 
 core_test = executable(
   'test_core',

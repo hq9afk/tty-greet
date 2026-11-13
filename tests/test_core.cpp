@@ -1,18 +1,11 @@
-#include <unistd.h>
-
 #include <cassert>
-#include <cstdlib>
-#include <filesystem>
 #include <string>
 #include <vector>
 
 #include "clock.h"
 #include "launch.h"
 #include "session.h"
-#include "state.h"
 #include "ui.h"
-
-namespace fs = std::filesystem;
 
 using Args = std::vector<std::string>;
 
@@ -57,7 +50,7 @@ int main(int argc, char **argv) {
     // `$PATH` lookup.
     assert(find_in_path("sh").front() == '/');
     assert(find_in_path("/nonexistent/x").empty());
-    assert(find_in_path("definitely-not-a-program-tui-greet").empty());
+    assert(find_in_path("definitely-not-a-program-tty-greet").empty());
 
     // Discovery: shadowing, hidden/NoDisplay/TryExec filtering, Wayland first, case-insensitive order.
     const std::vector<Session> s = discover({fixtures + "/a", fixtures + "/b", fixtures + "/none"});
@@ -81,30 +74,10 @@ int main(int argc, char **argv) {
     assert(has_env(*x, "XDG_SESSION_TYPE", "x11"));
 
     Session gone = s[3];
-    gone.exec = "definitely-not-a-program-tui-greet";
+    gone.exec = "definitely-not-a-program-tty-greet";
     assert(!plan_launch(gone));
     gone.exec = "%U";
     assert(!plan_launch(gone));
-
-    // Last-session state.
-    std::error_code ec;
-    const fs::path dir = fs::temp_directory_path(ec) / ("tui-greet-test-" + std::to_string(::getpid()));
-    const std::string path = (dir / "nested" / "last").string();
-    assert(load_last(path).empty());
-    save_last(path, session_key(s[2]));
-    assert(load_last(path) == "wayland/dup.desktop");
-    assert(find_index(s, load_last(path)) == 2);
-    assert(find_index(s, "x11/xtest.desktop") == 3);
-    assert(find_index(s, "wayland/missing.desktop") == 0);
-    save_last(path, std::string(kTtyKey));
-    assert(find_index(s, load_last(path)) == s.size());
-    fs::remove_all(dir, ec);
-
-    setenv("XDG_STATE_HOME", "/st", 1);
-    assert(state_path() == "/st/tui-greet/last");
-    setenv("XDG_STATE_HOME", "relative", 1); // must be absolute per the spec
-    setenv("HOME", "/home/u", 1);
-    assert(state_path() == "/home/u/.local/state/tui-greet/last");
 
     // Date.
     const std::time_t t = 1791000306; // 2026-10-03 04:05:06 UTC, a Saturday

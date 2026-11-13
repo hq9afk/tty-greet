@@ -33,4 +33,4 @@ A `kCountdownSecs` countdown starts entry 0 when it runs out; any move key cance
 With `preview`, `Enter` does nothing, so the only way out is `q`/`Esc` and the result is always `nullopt`;
 the countdown is still shown but does nothing when it runs out.
 */
-std::optional<std::size_t> pick_session(const std::vector<Session> &sessions, std::size_t initial, bool preview = false);
+std::optional<std::size_t> pick_session(const std::vector<Session> &sessions, bool preview = false);

@@ -21,7 +21,7 @@ constexpr struct {
     int r, g, b;
 } kAccent{0x9B, 0x57, 0xF4}; // `astralia-clock` accent
 constexpr int kTagWidth = 9; // `[wayland]`
-const std::wstring kTitle = L" tui-greet ";
+const std::wstring kTitle = L" tty-greet ";
 const std::wstring kHint = L"j/k move  enter start  q shell";
 const std::wstring kTtyName = L"Continue in tty";
 
@@ -185,7 +185,7 @@ void draw(const std::vector<Session> &sessions, const std::vector<std::wstring> 
 
 } // namespace
 
-std::optional<std::size_t> pick_session(const std::vector<Session> &sessions, std::size_t initial, bool preview) {
+std::optional<std::size_t> pick_session(const std::vector<Session> &sessions, bool preview) {
     std::setlocale(LC_ALL, "");
     initscr();
     cbreak();
@@ -207,7 +207,7 @@ std::optional<std::size_t> pick_session(const std::vector<Session> &sessions, st
     names.push_back(kTtyName);
 
     const std::size_t n = names.size();
-    std::size_t sel = std::min(initial, n - 1);
+    std::size_t sel = 0;
     std::size_t top = 0;
     std::optional<std::size_t> result;
     const long start_ms = mono_ms();

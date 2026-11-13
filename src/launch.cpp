@@ -85,7 +85,7 @@ std::optional<LaunchPlan> plan_launch(const Session &s) {
 int launch(const Session &s) {
     const std::optional<LaunchPlan> plan = plan_launch(s);
     if (!plan) {
-        std::fprintf(stderr, "tui-greet: cannot start %s: command not found: %s\n", s.name.c_str(), s.exec.c_str());
+        std::fprintf(stderr, "tty-greet: cannot start %s: command not found: %s\n", s.name.c_str(), s.exec.c_str());
         return 1;
     }
     for (const auto &[key, value] : plan->env)
@@ -97,6 +97,6 @@ int launch(const Session &s) {
     argv.push_back(nullptr);
     execvp(argv[0], argv.data());
 
-    std::fprintf(stderr, "tui-greet: cannot start %s: %s: %s\n", s.name.c_str(), argv[0], std::strerror(errno));
+    std::fprintf(stderr, "tty-greet: cannot start %s: %s: %s\n", s.name.c_str(), argv[0], std::strerror(errno));
     return 1;
 }

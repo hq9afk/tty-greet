@@ -6,13 +6,12 @@
 
 #include "launch.h"
 #include "session.h"
-#include "state.h"
 #include "ui.h"
 
 namespace {
 
 constexpr const char *kUsage =
-    "usage: tui-greet [--list | --preview | --help]\n"
+    "usage: tty-greet [--list | --preview | --help]\n"
     "\n"
     "Pick a Wayland or X11 session from a list and start it, replacing this process.\n"
     "Meant to run from a login shell profile on a tty.\n"
@@ -50,7 +49,7 @@ int main(int argc, char **argv) {
             preview = true;
             continue;
         }
-        std::fprintf(stderr, "tui-greet: unknown argument: %s\n%s", argv[i], kUsage);
+        std::fprintf(stderr, "tty-greet: unknown argument: %s\n%s", argv[i], kUsage);
         return 2;
     }
 
@@ -62,24 +61,16 @@ int main(int argc, char **argv) {
     }
 
     if (!preview && (set("DISPLAY") || set("WAYLAND_DISPLAY"))) {
-        std::fputs("tui-greet: already inside a graphical session\n", stderr);
+        std::fputs("tty-greet: already inside a graphical session\n", stderr);
         return 2;
     }
     if (!isatty(STDIN_FILENO) || !isatty(STDOUT_FILENO)) {
-        std::fputs("tui-greet: needs a terminal\n", stderr);
+        std::fputs("tty-greet: needs a terminal\n", stderr);
         return 2;
     }
 
-    const std::string path = state_path();
-    const std::optional<std::size_t> choice = pick_session(sessions, 0, preview);
-    if (!choice || preview)
+    const std::optional<std::size_t> choice = pick_session(sessions, preview);
+    if (!choice || preview || *choice == sessions.size())
         return 0;
-    if (*choice == sessions.size()) {
-        save_last(path, std::string(kTtyKey));
-        return 0;
-    }
-
-    const Session &s = sessions[*choice];
-    save_last(path, session_key(s));
-    return launch(s);
+    return launch(sessions[*choice]);
 }

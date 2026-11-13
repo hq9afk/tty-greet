@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-# Build script for tui-greet
+# Build script for tty-greet
 # Use:
 # <empty>: build and run the unit tests
 # setup: install dependencies
 # build: build only
 # test: build and run the unit tests
 # install: build and install system-wide
-# run: build and start tui-greet, extra arguments are passed to it
+# run: build and start tty-greet, extra arguments are passed to it
 # uninstall: remove the system-wide install
-# TUI_GREET_BUILD_JOBS=N: parallel compile jobs (default: all cores)
+# TTY_GREET_BUILD_JOBS=N: parallel compile jobs (default: all cores)
 
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
-BIN=tui-greet
-JOBS="${TUI_GREET_BUILD_JOBS:-$(nproc)}"
+BIN=tty-greet
+JOBS="${TTY_GREET_BUILD_JOBS:-$(nproc)}"
 
 cmd_setup() {
     sudo pacman -Syu --needed gcc meson ninja pkgconf ncurses
